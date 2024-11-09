@@ -64,5 +64,28 @@ namespace Escaner
         {
             InitializeComponent();
         }
+
+        private void ResaltarCaracter(RichTextBox rtb, char caracterAResaltar, Color colorResaltado)
+        {
+            int posicionOriginal = rtb.SelectionStart;
+
+            for (int i = 0; i < rtb.Text.Length; i++)
+            {
+                if (rtb.Text[i] == caracterAResaltar)
+                {
+                    rtb.Select(i, 1);
+                    rtb.SelectionColor = colorResaltado;
+                }
+            }
+            rtb.SelectionStart = posicionOriginal;
+            rtb.SelectionLength = 0;
+            rtb.SelectionColor = rtb.ForeColor;
+        }
+
+        private void btnBorrar_Click(object sender, EventArgs e)
+        {
+            cajaDeTexto.Text = "";
+            lblError.Text = "100 - Sin error";
+        }
     }
 }
