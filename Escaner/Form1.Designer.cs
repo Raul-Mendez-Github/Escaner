@@ -36,10 +36,21 @@
             this.btnBorrar = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.tablaLexica = new System.Windows.Forms.DataGridView();
+            this.num = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.linea = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.token = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tipo = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.codigo = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.tablaIdentificadores = new System.Windows.Forms.DataGridView();
+            this.identidicador = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.valorIdentificador = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.lineaIdentificador = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tablaConstantes = new System.Windows.Forms.DataGridView();
+            this.constante = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.valorConstante = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.lineaConstante = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.barraError.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tablaLexica)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tablaIdentificadores)).BeginInit();
@@ -95,6 +106,7 @@
             this.btnValidar.TabIndex = 2;
             this.btnValidar.Text = "Validar";
             this.btnValidar.UseVisualStyleBackColor = true;
+            this.btnValidar.Click += new System.EventHandler(this.btnValidar_Click);
             // 
             // btnBorrar
             // 
@@ -121,12 +133,55 @@
             // 
             this.tablaLexica.AllowUserToAddRows = false;
             this.tablaLexica.AllowUserToDeleteRows = false;
-            this.tablaLexica.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.tablaLexica.AllowUserToResizeColumns = false;
+            this.tablaLexica.AllowUserToResizeRows = false;
+            this.tablaLexica.ColumnHeadersHeight = 30;
+            this.tablaLexica.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.num,
+            this.linea,
+            this.token,
+            this.tipo,
+            this.codigo});
             this.tablaLexica.Location = new System.Drawing.Point(12, 312);
             this.tablaLexica.Name = "tablaLexica";
             this.tablaLexica.ReadOnly = true;
             this.tablaLexica.Size = new System.Drawing.Size(933, 150);
             this.tablaLexica.TabIndex = 5;
+            // 
+            // num
+            // 
+            this.num.HeaderText = "No.";
+            this.num.Name = "num";
+            this.num.ReadOnly = true;
+            this.num.Width = 150;
+            // 
+            // linea
+            // 
+            this.linea.HeaderText = "Linea";
+            this.linea.Name = "linea";
+            this.linea.ReadOnly = true;
+            this.linea.Width = 180;
+            // 
+            // token
+            // 
+            this.token.HeaderText = "Token";
+            this.token.Name = "token";
+            this.token.ReadOnly = true;
+            this.token.Width = 200;
+            // 
+            // tipo
+            // 
+            this.tipo.HeaderText = "Tipo";
+            this.tipo.Name = "tipo";
+            this.tipo.ReadOnly = true;
+            this.tipo.Width = 180;
+            // 
+            // codigo
+            // 
+            this.codigo.HeaderText = "Código";
+            this.codigo.Name = "codigo";
+            this.codigo.ReadOnly = true;
+            this.codigo.Width = 180;
             // 
             // label2
             // 
@@ -153,22 +208,70 @@
             this.tablaIdentificadores.AllowUserToAddRows = false;
             this.tablaIdentificadores.AllowUserToDeleteRows = false;
             this.tablaIdentificadores.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.tablaIdentificadores.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.identidicador,
+            this.valorIdentificador,
+            this.lineaIdentificador});
             this.tablaIdentificadores.Location = new System.Drawing.Point(12, 488);
             this.tablaIdentificadores.Name = "tablaIdentificadores";
             this.tablaIdentificadores.ReadOnly = true;
             this.tablaIdentificadores.Size = new System.Drawing.Size(452, 150);
             this.tablaIdentificadores.TabIndex = 8;
             // 
+            // identidicador
+            // 
+            this.identidicador.HeaderText = "Identificador";
+            this.identidicador.Name = "identidicador";
+            this.identidicador.ReadOnly = true;
+            this.identidicador.Width = 180;
+            // 
+            // valorIdentificador
+            // 
+            this.valorIdentificador.HeaderText = "Valor";
+            this.valorIdentificador.Name = "valorIdentificador";
+            this.valorIdentificador.ReadOnly = true;
+            // 
+            // lineaIdentificador
+            // 
+            this.lineaIdentificador.HeaderText = "Linea";
+            this.lineaIdentificador.Name = "lineaIdentificador";
+            this.lineaIdentificador.ReadOnly = true;
+            this.lineaIdentificador.Width = 128;
+            // 
             // tablaConstantes
             // 
             this.tablaConstantes.AllowUserToAddRows = false;
             this.tablaConstantes.AllowUserToDeleteRows = false;
             this.tablaConstantes.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.tablaConstantes.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.constante,
+            this.valorConstante,
+            this.lineaConstante});
             this.tablaConstantes.Location = new System.Drawing.Point(493, 488);
             this.tablaConstantes.Name = "tablaConstantes";
             this.tablaConstantes.ReadOnly = true;
             this.tablaConstantes.Size = new System.Drawing.Size(452, 150);
             this.tablaConstantes.TabIndex = 9;
+            // 
+            // constante
+            // 
+            this.constante.HeaderText = "Constante";
+            this.constante.Name = "constante";
+            this.constante.ReadOnly = true;
+            this.constante.Width = 180;
+            // 
+            // valorConstante
+            // 
+            this.valorConstante.HeaderText = "Valor";
+            this.valorConstante.Name = "valorConstante";
+            this.valorConstante.ReadOnly = true;
+            // 
+            // lineaConstante
+            // 
+            this.lineaConstante.HeaderText = "Linea";
+            this.lineaConstante.Name = "lineaConstante";
+            this.lineaConstante.ReadOnly = true;
+            this.lineaConstante.Width = 128;
             // 
             // Form1
             // 
@@ -215,6 +318,17 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.DataGridView tablaIdentificadores;
         private System.Windows.Forms.DataGridView tablaConstantes;
+        private System.Windows.Forms.DataGridViewTextBoxColumn num;
+        private System.Windows.Forms.DataGridViewTextBoxColumn linea;
+        private System.Windows.Forms.DataGridViewTextBoxColumn token;
+        private System.Windows.Forms.DataGridViewTextBoxColumn tipo;
+        private System.Windows.Forms.DataGridViewTextBoxColumn codigo;
+        private System.Windows.Forms.DataGridViewTextBoxColumn identidicador;
+        private System.Windows.Forms.DataGridViewTextBoxColumn valorIdentificador;
+        private System.Windows.Forms.DataGridViewTextBoxColumn lineaIdentificador;
+        private System.Windows.Forms.DataGridViewTextBoxColumn constante;
+        private System.Windows.Forms.DataGridViewTextBoxColumn valorConstante;
+        private System.Windows.Forms.DataGridViewTextBoxColumn lineaConstante;
     }
 }
 
