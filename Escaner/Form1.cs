@@ -256,7 +256,7 @@ namespace Escaner
                     ? listaTokens.FirstOrDefault(c => c.Token == textoToken).Codigo
                     : listaTokens.Count + codigoInicial;
 
-            AgregarRawATablaLexica(numeroLinea, textoToken, 3, codigo);
+            AgregarRawATablaLexica(numeroLinea, textoToken, codigoInicial == 201 ? 3 : 1, codigo);
 
             if (!ExisteToken(listaTokens, textoToken))
             {
