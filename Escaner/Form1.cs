@@ -15,7 +15,6 @@ namespace Escaner
         StringBuilder sbIdentificador = new StringBuilder();
         StringBuilder sbConstante = new StringBuilder();
         int i = 1;
-        int indice = 1;
 
         List<TokenDinamico> identificadores = new List<TokenDinamico>();
         List<TokenDinamico> constantes = new List<TokenDinamico>();
@@ -164,7 +163,7 @@ namespace Escaner
         {
             if (token == "") return;
 
-            tablaLexica.Rows.Add(indice++, linea, token, tipo, codigo);
+            tablaLexica.Rows.Add(i++, linea, token, tipo, codigo);
         }
 
         private void AgregarRawATablaIdentificadores(string token, int codigo, string lineas)
@@ -235,7 +234,10 @@ namespace Escaner
 
         private void btnValidar_Click(object sender, EventArgs e)
         {
-            i = 0;
+            string respaldoTexto = cajaDeTexto.Text;
+            cajaDeTexto.Text = "";
+            cajaDeTexto.Text = respaldoTexto;
+            i = 1;
             tablaIdentificadores.Rows.Clear();
             tablaConstantes.Rows.Clear();
             tablaLexica.Rows.Clear();
