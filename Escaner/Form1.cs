@@ -12,6 +12,14 @@ namespace Escaner
 {
     public partial class Form1 : Form
     {
+        StringBuilder sbIdentificador = new StringBuilder();
+        StringBuilder sbConstante = new StringBuilder();
+        int i = 1;
+
+
+        List<TokenDinamico> identificadores = new List<TokenDinamico>();
+        List<TokenDinamico> constantes = new List<TokenDinamico>();
+
         int[,] TT =
                 //D  O  λ  $  L  e  d pc  p  s
           /*q0*/{{1, 2, 3, 4, 5, 5, 6,12,12, 0}, // Error 102
@@ -62,13 +70,14 @@ namespace Escaner
             if (caracter == '\n') return 9;
             return -1; // Error 101, Simbolo desconocido
         }
-        Dictionary<int, string>  error = new Dictionary<int, string>
+        Dictionary<int, string> error = new Dictionary<int, string>
         {
                 { 100, "100 - Sin errores" },
                 { 101, "Error 101 - Símbolo Desconocido" },
                 { 102, "Error 102 - Elemento Inválido" }
         };
-    public Form1()
+
+        public Form1()
         {
             InitializeComponent();
         }
@@ -85,23 +94,90 @@ namespace Escaner
                 char caracter = cadena[i];
                 if (IndiceCaracter(caracter) == -1)
                 {
-                    lblError.Text = error[101] + " en linea " + numeroLinea.ToString();
+                    lblError.Text = error[101] + " en linea " + numeroLinea.ToString() + 1;
                     ResaltarCaracter(rtb, caracter, Color.Red);
                     return;
+                }
+                estado = TT[estado, IndiceCaracter(caracter)];
+
+                if(IndiceCaracter(caracter) == 9)
+                {
+                    numeroLinea++;
                 }
 
                 if (IndiceCaracter(caracter) < 4)
                 {
-                    AgregarToken(contador, numeroLinea, token, estado);
+                    if (sbConstante.ToString() != "")
+                    {
+                        TokenDinamico resultadoToken = new TokenDinamico
+                        {
+                            Linea = numeroLinea,
+                            Token = sbConstante.ToString(),
+                            Codigo = constantes.Count + 201
+                        };
+                        AgregarRawATablaLexica(resultadoToken.Linea, resultadoToken.Token, 3, resultadoToken.Codigo);
+                        if (!ExisteToken(constantes, sbConstante.ToString()))
+                        {
+                            constantes.Add(resultadoToken);
+                            AgregarRawATablaConstantes(resultadoToken.Linea, resultadoToken.Token, resultadoToken.Codigo);
+                        }
+                        sbConstante.Clear();
+                    }
+
+                    if (sbIdentificador.ToString() != "")
+                    {
+                        TokenDinamico resultadoToken = new TokenDinamico
+                        {
+                            Linea = numeroLinea,
+                            Token = sbIdentificador.ToString(),
+                            Codigo = constantes.Count + 101
+                        };
+                        AgregarRawATablaLexica(resultadoToken.Linea, resultadoToken.Token, 1, resultadoToken.Codigo);
+                        if (!ExisteToken(identificadores, sbIdentificador.ToString()))
+                        {
+                            identificadores.Add(resultadoToken);
+                            AgregarRawATablaIdentificadores(resultadoToken.Linea, resultadoToken.Token, resultadoToken.Codigo);
+                        }
+                        sbIdentificador.Clear();
+                    }
+
+                    AgregarRawATablaLexica(numeroLinea, caracter.ToString(), codigoToken[caracter].Item1, codigoToken[caracter].Item2);
+                }
+                else if(estado == 5)
+                {
+                    sbIdentificador.Append(caracter);
+                }
+                else if(estado >= 6)
+                {
+                    sbConstante.Append(caracter);
                 }
             }
-
         }
 
-        private void AgregarToken(int numToken, int numLinea, string token, int estado)
+        private bool ExisteToken(List<TokenDinamico> tokens, string token)
+        {
+            return tokens.Any(t => t.Token == token);
+        }
+
+        private void AgregarRawATablaLexica(int linea, string token, int tipo, int codigo)
         {
             if (token == "") return;
-            
+
+            tablaLexica.Rows.Add(i++, linea, token, tipo, codigo);
+        }
+
+        private void AgregarRawATablaIdentificadores(int linea, string token, int codigo)
+        {
+            if (token == "") return;
+
+            tablaIdentificadores.Rows.Add(linea, token, codigo);
+        }
+
+        private void AgregarRawATablaConstantes(int linea, string token, int codigo)
+        {
+            if (token == "") return;
+
+            tablaConstantes.Rows.Add(linea, token, codigo);
         }
 
         private void ResaltarCaracter(RichTextBox rtb, char caracterAResaltar, Color colorResaltado)
@@ -129,6 +205,14 @@ namespace Escaner
 
         private void btnValidar_Click(object sender, EventArgs e)
         {
+            i = 0;
+            tablaIdentificadores.Rows.Clear();
+            tablaConstantes.Rows.Clear();
+            tablaLexica.Rows.Clear();
+            sbIdentificador.Clear();
+            sbConstante.Clear();
+            identificadores.Clear();
+            constantes.Clear();
             ValidarTexto(cajaDeTexto, tablaLexica, tablaIdentificadores, tablaConstantes);
         }
     }
