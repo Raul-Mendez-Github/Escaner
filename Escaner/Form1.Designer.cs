@@ -28,6 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
             this.cajaDeTexto = new System.Windows.Forms.RichTextBox();
             this.barraError = new System.Windows.Forms.GroupBox();
             this.lblError = new System.Windows.Forms.Label();
@@ -62,7 +68,7 @@
             this.cajaDeTexto.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cajaDeTexto.Location = new System.Drawing.Point(12, 12);
             this.cajaDeTexto.Name = "cajaDeTexto";
-            this.cajaDeTexto.Size = new System.Drawing.Size(933, 201);
+            this.cajaDeTexto.Size = new System.Drawing.Size(894, 201);
             this.cajaDeTexto.TabIndex = 0;
             this.cajaDeTexto.Text = "";
             this.cajaDeTexto.WordWrap = false;
@@ -73,7 +79,7 @@
             this.barraError.Controls.Add(this.lblMensaje);
             this.barraError.Location = new System.Drawing.Point(12, 219);
             this.barraError.Name = "barraError";
-            this.barraError.Size = new System.Drawing.Size(933, 34);
+            this.barraError.Size = new System.Drawing.Size(894, 34);
             this.barraError.TabIndex = 1;
             this.barraError.TabStop = false;
             // 
@@ -111,7 +117,7 @@
             // btnBorrar
             // 
             this.btnBorrar.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnBorrar.Location = new System.Drawing.Point(706, 259);
+            this.btnBorrar.Location = new System.Drawing.Point(661, 259);
             this.btnBorrar.Name = "btnBorrar";
             this.btnBorrar.Size = new System.Drawing.Size(75, 30);
             this.btnBorrar.TabIndex = 3;
@@ -135,6 +141,14 @@
             this.tablaLexica.AllowUserToDeleteRows = false;
             this.tablaLexica.AllowUserToResizeColumns = false;
             this.tablaLexica.AllowUserToResizeRows = false;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.tablaLexica.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             this.tablaLexica.ColumnHeadersHeight = 30;
             this.tablaLexica.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.num,
@@ -142,10 +156,19 @@
             this.token,
             this.tipo,
             this.codigo});
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.tablaLexica.DefaultCellStyle = dataGridViewCellStyle2;
             this.tablaLexica.Location = new System.Drawing.Point(12, 312);
             this.tablaLexica.Name = "tablaLexica";
             this.tablaLexica.ReadOnly = true;
-            this.tablaLexica.Size = new System.Drawing.Size(933, 150);
+            this.tablaLexica.RowHeadersVisible = false;
+            this.tablaLexica.Size = new System.Drawing.Size(894, 150);
             this.tablaLexica.TabIndex = 5;
             // 
             // num
@@ -187,7 +210,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(168, 465);
+            this.label2.Location = new System.Drawing.Point(138, 465);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(157, 20);
             this.label2.TabIndex = 6;
@@ -197,7 +220,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(676, 465);
+            this.label3.Location = new System.Drawing.Point(657, 465);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(91, 20);
             this.label3.TabIndex = 7;
@@ -207,15 +230,32 @@
             // 
             this.tablaIdentificadores.AllowUserToAddRows = false;
             this.tablaIdentificadores.AllowUserToDeleteRows = false;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.tablaIdentificadores.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle3;
             this.tablaIdentificadores.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.tablaIdentificadores.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.identidicador,
             this.valorIdentificador,
             this.lineaIdentificador});
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.tablaIdentificadores.DefaultCellStyle = dataGridViewCellStyle4;
             this.tablaIdentificadores.Location = new System.Drawing.Point(12, 488);
             this.tablaIdentificadores.Name = "tablaIdentificadores";
             this.tablaIdentificadores.ReadOnly = true;
-            this.tablaIdentificadores.Size = new System.Drawing.Size(452, 150);
+            this.tablaIdentificadores.RowHeadersVisible = false;
+            this.tablaIdentificadores.Size = new System.Drawing.Size(411, 150);
             this.tablaIdentificadores.TabIndex = 8;
             // 
             // identidicador
@@ -242,15 +282,32 @@
             // 
             this.tablaConstantes.AllowUserToAddRows = false;
             this.tablaConstantes.AllowUserToDeleteRows = false;
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.tablaConstantes.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle5;
             this.tablaConstantes.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.tablaConstantes.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.constante,
             this.valorConstante,
             this.lineaConstante});
-            this.tablaConstantes.Location = new System.Drawing.Point(493, 488);
+            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.tablaConstantes.DefaultCellStyle = dataGridViewCellStyle6;
+            this.tablaConstantes.Location = new System.Drawing.Point(494, 488);
             this.tablaConstantes.Name = "tablaConstantes";
             this.tablaConstantes.ReadOnly = true;
-            this.tablaConstantes.Size = new System.Drawing.Size(452, 150);
+            this.tablaConstantes.RowHeadersVisible = false;
+            this.tablaConstantes.Size = new System.Drawing.Size(412, 150);
             this.tablaConstantes.TabIndex = 9;
             // 
             // constante
@@ -277,7 +334,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(957, 650);
+            this.ClientSize = new System.Drawing.Size(918, 650);
             this.Controls.Add(this.tablaConstantes);
             this.Controls.Add(this.tablaIdentificadores);
             this.Controls.Add(this.label3);

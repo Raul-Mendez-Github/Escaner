@@ -100,64 +100,13 @@ namespace Escaner
                 }
                 estado = TT[estado, IndiceCaracter(caracter)];
 
-                if(IndiceCaracter(caracter) == 9)
-                {
-                    numeroLinea++;
-                }
+                if(IndiceCaracter(caracter) == 9) numeroLinea++;
 
                 if (IndiceCaracter(caracter) < 4)
                 {
-                    if (sbConstante.ToString() != "")
-                    {
-                        TokenDinamico resultadoToken = new TokenDinamico
-                        {
-                            Linea = new HashSet<int>(),
-                            Token = sbConstante.ToString(),
-                            Codigo = constantes.Count + 201
-                        };
-                        resultadoToken.Linea.Add(numeroLinea);
-                        
-                        int codigo = constantes.Any(c => c.Token == sbConstante.ToString()) 
-                            ? constantes.FirstOrDefault(c => c.Token == sbConstante.ToString()).Codigo
-                            : constantes.Count + 201;
+                    AgregarToken(ref sbConstante, 201, ref constantes, numeroLinea);
 
-                        AgregarRawATablaLexica(numeroLinea, resultadoToken.Token, 3, codigo);
-                        if (!ExisteToken(constantes, sbConstante.ToString()))
-                        {
-                            constantes.Add(resultadoToken);
-                        }
-                        else
-                        {
-                            constantes.FirstOrDefault(c => c.Token == sbConstante.ToString()).Linea.Add(numeroLinea); 
-                        }
-                        sbConstante.Clear();
-                    }
-
-                    if (sbIdentificador.ToString() != "")
-                    {
-                        TokenDinamico resultadoToken = new TokenDinamico
-                        {
-                            Linea = new HashSet<int>(),
-                            Token = sbIdentificador.ToString(),
-                            Codigo = identificadores.Count + 101
-                        };
-                        resultadoToken.Linea.Add(numeroLinea);
-                        int codigo = identificadores.Any(id => id.Token == sbIdentificador.ToString())
-                            ? identificadores.FirstOrDefault(id => id.Token == sbIdentificador.ToString()).Codigo
-                            : identificadores.Count + 101;
-
-                        AgregarRawATablaLexica(numeroLinea, resultadoToken.Token, 1, codigo);
-                        if (!ExisteToken(identificadores, sbIdentificador.ToString()))
-                        {
-                            identificadores.Add(resultadoToken);
-                        }
-                        else
-                        {
-                            identificadores.FirstOrDefault(c => c.Token == sbIdentificador.ToString()).Linea.Add(numeroLinea);
-                        }
-                        
-                        sbIdentificador.Clear();
-                    }
+                    AgregarToken(ref sbIdentificador, 101, ref identificadores, numeroLinea);
 
                     AgregarRawATablaLexica(numeroLinea, caracter.ToString(), codigoToken[caracter].Item1, codigoToken[caracter].Item2);
                 }
@@ -242,6 +191,37 @@ namespace Escaner
             identificadores.Clear();
             constantes.Clear();
             ValidarTexto(cajaDeTexto, tablaLexica, tablaIdentificadores, tablaConstantes);
+        }
+
+        private void AgregarToken(ref StringBuilder token, int codigoInicial, ref List<TokenDinamico>listaTokens, int numeroLinea)
+        {
+            if (token.ToString() == "") return;
+
+            string textoToken = token.ToString();
+
+            int codigo = listaTokens.Any(c => c.Token == textoToken)
+                    ? listaTokens.FirstOrDefault(c => c.Token == textoToken).Codigo
+                    : listaTokens.Count + codigoInicial;
+
+            AgregarRawATablaLexica(numeroLinea, textoToken, 3, codigo);
+
+            if (!ExisteToken(listaTokens, textoToken))
+            {
+                TokenDinamico resultadoToken = new TokenDinamico
+                {
+                    Linea = new HashSet<int>(),
+                    Token = textoToken,
+                    Codigo = listaTokens.Count + codigoInicial
+                };
+                resultadoToken.Linea.Add(numeroLinea);
+
+                listaTokens.Add(resultadoToken);
+            }
+            else
+            {
+                listaTokens.FirstOrDefault(c => c.Token == textoToken).Linea.Add(numeroLinea);
+            }
+            token.Clear();
         }
     }
 }
