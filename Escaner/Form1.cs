@@ -15,7 +15,7 @@ namespace Escaner
         StringBuilder sbIdentificador = new StringBuilder();
         StringBuilder sbConstante = new StringBuilder();
         int i = 1;
-
+        int indice = 1;
 
         List<TokenDinamico> identificadores = new List<TokenDinamico>();
         List<TokenDinamico> constantes = new List<TokenDinamico>();
@@ -139,7 +139,7 @@ namespace Escaner
                         AgregarToken(ref sbIdentificador, 101, ref identificadores, numeroLinea);
 
                         if (IndiceCaracter(caracter) == 9) numeroLinea++;
-                        else if (i < cadena.Length - 1) AgregarRawATablaLexica(numeroLinea, caracter.ToString(), codigoToken[caracter].Item1, codigoToken[caracter].Item2);
+                        else AgregarRawATablaLexica(numeroLinea, caracter.ToString(), codigoToken[caracter].Item1, codigoToken[caracter].Item2);
                     }
                 }
             }
@@ -164,7 +164,7 @@ namespace Escaner
         {
             if (token == "") return;
 
-            tablaLexica.Rows.Add(i++, linea, token, tipo, codigo);
+            tablaLexica.Rows.Add(indice++, linea, token, tipo, codigo);
         }
 
         private void AgregarRawATablaIdentificadores(string token, int codigo, string lineas)
