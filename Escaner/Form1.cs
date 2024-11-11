@@ -111,15 +111,24 @@ namespace Escaner
                     {
                         TokenDinamico resultadoToken = new TokenDinamico
                         {
-                            Linea = numeroLinea,
+                            Linea = new HashSet<int>(),
                             Token = sbConstante.ToString(),
                             Codigo = constantes.Count + 201
                         };
-                        AgregarRawATablaLexica(resultadoToken.Linea, resultadoToken.Token, 3, resultadoToken.Codigo);
+                        resultadoToken.Linea.Add(numeroLinea);
+                        
+                        int codigo = constantes.Any(c => c.Token == sbConstante.ToString()) 
+                            ? constantes.FirstOrDefault(c => c.Token == sbConstante.ToString()).Codigo
+                            : constantes.Count + 201;
+
+                        AgregarRawATablaLexica(numeroLinea, resultadoToken.Token, 3, codigo);
                         if (!ExisteToken(constantes, sbConstante.ToString()))
                         {
                             constantes.Add(resultadoToken);
-                            AgregarRawATablaConstantes(resultadoToken.Linea, resultadoToken.Token, resultadoToken.Codigo);
+                        }
+                        else
+                        {
+                            constantes.FirstOrDefault(c => c.Token == sbConstante.ToString()).Linea.Add(numeroLinea); 
                         }
                         sbConstante.Clear();
                     }
@@ -128,16 +137,25 @@ namespace Escaner
                     {
                         TokenDinamico resultadoToken = new TokenDinamico
                         {
-                            Linea = numeroLinea,
+                            Linea = new HashSet<int>(),
                             Token = sbIdentificador.ToString(),
-                            Codigo = constantes.Count + 101
+                            Codigo = identificadores.Count + 101
                         };
-                        AgregarRawATablaLexica(resultadoToken.Linea, resultadoToken.Token, 1, resultadoToken.Codigo);
+                        resultadoToken.Linea.Add(numeroLinea);
+                        int codigo = identificadores.Any(id => id.Token == sbIdentificador.ToString())
+                            ? identificadores.FirstOrDefault(id => id.Token == sbIdentificador.ToString()).Codigo
+                            : identificadores.Count + 101;
+
+                        AgregarRawATablaLexica(numeroLinea, resultadoToken.Token, 1, codigo);
                         if (!ExisteToken(identificadores, sbIdentificador.ToString()))
                         {
                             identificadores.Add(resultadoToken);
-                            AgregarRawATablaIdentificadores(resultadoToken.Linea, resultadoToken.Token, resultadoToken.Codigo);
                         }
+                        else
+                        {
+                            identificadores.FirstOrDefault(c => c.Token == sbIdentificador.ToString()).Linea.Add(numeroLinea);
+                        }
+                        
                         sbIdentificador.Clear();
                     }
 
@@ -151,6 +169,16 @@ namespace Escaner
                 {
                     sbConstante.Append(caracter);
                 }
+            }
+
+            foreach (var constante in constantes)
+            {
+                AgregarRawATablaConstantes(constante.Token, constante.Codigo, string.Join(", ", constante.Linea));
+            }
+
+            foreach(var identificador in identificadores)
+            {
+                AgregarRawATablaIdentificadores(identificador.Token, identificador.Codigo, string.Join(", ", identificador.Linea));
             }
         }
 
@@ -166,18 +194,18 @@ namespace Escaner
             tablaLexica.Rows.Add(i++, linea, token, tipo, codigo);
         }
 
-        private void AgregarRawATablaIdentificadores(int linea, string token, int codigo)
+        private void AgregarRawATablaIdentificadores(string token, int codigo, string lineas)
         {
             if (token == "") return;
 
-            tablaIdentificadores.Rows.Add(linea, token, codigo);
+            tablaIdentificadores.Rows.Add(token, codigo, lineas);
         }
 
-        private void AgregarRawATablaConstantes(int linea, string token, int codigo)
+        private void AgregarRawATablaConstantes(string token, int codigo, string lineas)
         {
             if (token == "") return;
 
-            tablaConstantes.Rows.Add(linea, token, codigo);
+            tablaConstantes.Rows.Add(token, codigo, lineas);
         }
 
         private void ResaltarCaracter(RichTextBox rtb, char caracterAResaltar, Color colorResaltado)

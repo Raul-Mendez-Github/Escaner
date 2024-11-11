@@ -8,7 +8,7 @@ namespace Escaner
 {
     internal class TokenDinamico
     {
-        public int Linea { get; set; }
+        public HashSet<int> Linea { get; set; }
         public string Token { get; set; }
         public int Codigo {  get; set; }
     }
