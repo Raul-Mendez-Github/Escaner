@@ -84,8 +84,8 @@ namespace Escaner
 
         private void ValidarTexto(RichTextBox rtb, DataGridView tablaLexica, DataGridView tablaIdentificadores, DataGridView tablaConstantes)
         {
-            string cadena = rtb.Text, token = "";
-            int estado = 0, contador = 0, numeroCadena = 1, numeroLinea = 1;
+            string cadena = rtb.Text;
+            int estado = 0, numeroLinea = 1, estadoAnterior = 0;
 
             lblError.Text = error[100];
 
@@ -94,29 +94,53 @@ namespace Escaner
                 char caracter = cadena[i];
                 if (IndiceCaracter(caracter) == -1)
                 {
-                    lblError.Text = error[101] + " en linea " + numeroLinea.ToString() + 1;
-                    ResaltarCaracter(rtb, caracter, Color.Red);
+                    lblError.Text = error[101] + " en linea " + numeroLinea.ToString();
+                    ResaltarCaracter(rtb, caracter, Color.Yellow);
                     return;
                 }
-                estado = TT[estado, IndiceCaracter(caracter)];
-
-                if(IndiceCaracter(caracter) == 9) numeroLinea++;
-
-                if (IndiceCaracter(caracter) < 4)
+                else
                 {
-                    AgregarToken(ref sbConstante, 201, ref constantes, numeroLinea);
+                    estadoAnterior = estado;
+                    estado = TT[estado, IndiceCaracter(caracter)];
 
-                    AgregarToken(ref sbIdentificador, 101, ref identificadores, numeroLinea);
+                    if (estado == 5)
+                    {
+                        sbIdentificador.Append(caracter);
+                        if (i == cadena.Length - 1)
+                        {
+                            AgregarToken(ref sbIdentificador, 101, ref identificadores, numeroLinea);
+                        }
+                    }
+                    else if (estado >= 6)
+                    {
+                        sbConstante.Append(caracter); 
+                        
+                        if (i == cadena.Length - 1)
+                        {
+                            if (estadoAnterior == 7 || estadoAnterior == 10 || estadoAnterior == 12)
+                            {
+                                lblError.Text = error[102] + " en linea " + numeroLinea.ToString();
+                                ResaltarCadena(cajaDeTexto, sbConstante.ToString(), Color.Yellow);
+                                return;
+                            }
+                            AgregarToken(ref sbConstante, 201, ref constantes, numeroLinea);
+                        }
+                    }
+                    else if (IndiceCaracter(caracter) < 4 || IndiceCaracter(caracter) == 9 || i == cadena.Length - 1)
+                    {
+                        if (estadoAnterior == 7 || estadoAnterior == 10 || estadoAnterior == 12)
+                        {
+                            lblError.Text = error[102] + " en linea " + numeroLinea.ToString();
+                            ResaltarCadena(cajaDeTexto, sbConstante.ToString(), Color.Yellow);
+                            return;
+                        }
 
-                    AgregarRawATablaLexica(numeroLinea, caracter.ToString(), codigoToken[caracter].Item1, codigoToken[caracter].Item2);
-                }
-                else if(estado == 5)
-                {
-                    sbIdentificador.Append(caracter);
-                }
-                else if(estado >= 6)
-                {
-                    sbConstante.Append(caracter);
+                        AgregarToken(ref sbConstante, 201, ref constantes, numeroLinea);
+                        AgregarToken(ref sbIdentificador, 101, ref identificadores, numeroLinea);
+
+                        if (IndiceCaracter(caracter) == 9) numeroLinea++;
+                        else if (i < cadena.Length - 1) AgregarRawATablaLexica(numeroLinea, caracter.ToString(), codigoToken[caracter].Item1, codigoToken[caracter].Item2);
+                    }
                 }
             }
 
@@ -166,18 +190,47 @@ namespace Escaner
                 if (rtb.Text[i] == caracterAResaltar)
                 {
                     rtb.Select(i, 1);
-                    rtb.SelectionColor = colorResaltado;
+                    rtb.SelectionBackColor = colorResaltado;
                 }
             }
             rtb.SelectionStart = posicionOriginal;
             rtb.SelectionLength = 0;
-            rtb.SelectionColor = rtb.ForeColor;
+            rtb.SelectionBackColor = Color.White;
+        }
+
+        private void ResaltarCadena(RichTextBox rtb, string cadenaAResaltar, Color colorResaltado)
+        {
+            int posicionOriginal = rtb.SelectionStart;
+            int longitudCadena = cadenaAResaltar.Length;
+
+            // Asegurarse de que la cadena no esté vacía
+            if (string.IsNullOrEmpty(cadenaAResaltar) || longitudCadena > rtb.Text.Length)
+                return;
+
+            // Recorrer el texto en busca de la cadena
+            int posicionActual = 0;
+            while ((posicionActual = rtb.Text.IndexOf(cadenaAResaltar, posicionActual)) != -1)
+            {
+                rtb.Select(posicionActual, longitudCadena);
+                rtb.SelectionBackColor = colorResaltado;
+
+                // Avanzar la posición actual para seguir buscando
+                posicionActual += longitudCadena;
+            }
+
+            // Restaurar la selección original
+            rtb.SelectionStart = posicionOriginal;
+            rtb.SelectionLength = 0;
+            rtb.SelectionBackColor = Color.White;
         }
 
         private void btnBorrar_Click(object sender, EventArgs e)
         {
             cajaDeTexto.Text = "";
-            lblError.Text = "100 - Sin error";
+            lblError.Text = "100 - Sin errores";
+            tablaConstantes.Rows.Clear();
+            tablaIdentificadores.Rows.Clear();
+            tablaLexica.Rows.Clear();
         }
 
         private void btnValidar_Click(object sender, EventArgs e)
