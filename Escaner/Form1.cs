@@ -21,7 +21,7 @@ namespace Escaner
 
         int[,] TT =
                 //D  O  λ  $  L  e  d pc  p  s
-          /*q0*/{{1, 2, 3, 4, 5, 5, 6,12,12, 0}, // Error 102
+          /*q0*/{{1, 2, 3, 4, 5, 5, 6,12,12, 0},
           /*q1*/ {1, 2, 3, 4, 5, 5, 6,12,12, 0}, // Delimitador
           /*q2*/ {1, 2, 3, 4, 5, 5, 6,12,12, 0}, // Operador
           /*q3*/ {1, 2, 3, 4, 5, 5, 6,12,12, 0}, // λ
@@ -35,7 +35,7 @@ namespace Escaner
          /*q11*/ {1, 2, 3, 4,12,12,11,12,12, 0}, // Constante
          /*q12*/ {1, 2, 3, 4,12,12,12,12,12, 0}};// Error 102
 
-        // Asignar el tipo del token (El profe asignó estos números como "Tipo")
+        // Asignar el tipo del token
         Dictionary<int, string> tipoToken = new Dictionary<int, string>
         {
             { 1, "Identificador" },
@@ -115,7 +115,7 @@ namespace Escaner
 
         private void ValidarTexto(RichTextBox rtb, DataGridView tablaLexica, DataGridView tablaIdentificadores, DataGridView tablaConstantes)
         {
-            string cadena = rtb.Text;
+            string cadena = rtb.Text + '\n';
             int estado = 0, numeroLinea = 1, estadoAnterior = 0;
             lblError.Text = error[100];
 
@@ -150,9 +150,6 @@ namespace Escaner
                     }
                     else if (estado >= 6) // Si el nuevo estado es numerico
                     {
-                        // Acumular el caracter en la cadena de contante 
-                        sbConstante.Append(caracter);
-
                         // Si el caracter es el ultimo
                         if (i == cadena.Length - 1)
                         {
@@ -166,7 +163,10 @@ namespace Escaner
                             }
                             // Si no, agregar la constante a la lista de constantes
                             AgregarToken(ref sbConstante, 201, ref constantes, numeroLinea);
+                            AgregarToken(ref sbIdentificador, 101, ref identificadores, numeroLinea);
                         }
+                        // Acumular el caracter en la cadena de contante 
+                        sbConstante.Append(caracter);
                     }
                     // Si el token es de caracter unico, hay un salto de linea o el caracter es el ultimo
                     else if (IndiceCaracter(caracter) < 4 || IndiceCaracter(caracter) == 9 || i == cadena.Length - 1)
