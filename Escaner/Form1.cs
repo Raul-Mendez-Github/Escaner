@@ -115,89 +115,36 @@ namespace Escaner
 
         private void ValidarTexto(RichTextBox rtb, DataGridView tablaLexica, DataGridView tablaIdentificadores, DataGridView tablaConstantes)
         {
-            string cadena = rtb.Text + '\n';
-            int estado = 0, numeroLinea = 1, estadoAnterior = 0;
+            string[] lineas = rtb.Text.Split('\n'); // Separar por líneas
             lblError.Text = error[100];
+            int numeroLinea = 1;
 
-            // Recorrer la cadena
-            for (int i = 0; i < cadena.Length; i++)
+            foreach (string linea in lineas)
             {
-                char caracter = cadena[i];
-                if (IndiceCaracter(caracter) == -1) // Detectar cadenas invalidas (fuera del diccionario)
+                if (string.IsNullOrWhiteSpace(linea))
                 {
-                    lblError.Text = error[101] + " en linea " + numeroLinea.ToString();
-                    ResaltarCaracter(rtb, caracter, Color.Yellow);
-                    return;
+                    numeroLinea++;
+                    continue;
+                }
+
+                // Validar sintaxis con pila
+                var resultado = ValidarConPila(linea.Trim());
+
+                if (!resultado.Item1) // Si es inválida
+                {
+                    // Agregar a tabla de constantes con el error
+                    tablaConstantes.Rows.Add(numeroLinea, linea, resultado.Item2);
+                    ResaltarCadena(rtb, linea, Color.Yellow); // Resaltar error
                 }
                 else
                 {
-                    // Guardar el estado actual y pasar al siguiente
-                    estadoAnterior = estado;
-                    estado = TT[estado, IndiceCaracter(caracter)];
-
-                    // Si el nuevo estado indica identificador
-                    if (estado == 5)
-                    {
-                        // Acumular el caracter en la cadena de identificador
-                        sbIdentificador.Append(caracter);
-
-                        // Si el caracter es el ultimo
-                        if (i == cadena.Length - 1)
-                        {
-                            // Agregar el identificador a la lista de identificadores
-                            AgregarToken(ref sbIdentificador, 101, ref identificadores, numeroLinea);
-                        }
-                    }
-                    else if (estado >= 6) // Si el nuevo estado es numerico
-                    {
-                        // Si el caracter es el ultimo
-                        if (i == cadena.Length - 1)
-                        {
-                            // Si el estado anterior fue invalido
-                            if (estadoAnterior == 7 || estadoAnterior == 10 || estadoAnterior == 12)
-                            {
-                                // Saltar error
-                                lblError.Text = error[102] + " en linea " + numeroLinea.ToString();
-                                ResaltarCadena(cajaDeTexto, sbConstante.ToString(), Color.Yellow);
-                                return;
-                            }
-                            // Si no, agregar la constante a la lista de constantes
-                            AgregarToken(ref sbConstante, 201, ref constantes, numeroLinea);
-                            AgregarToken(ref sbIdentificador, 101, ref identificadores, numeroLinea);
-                        }
-                        // Acumular el caracter en la cadena de contante 
-                        sbConstante.Append(caracter);
-                    }
-                    // Si el token es de caracter unico, hay un salto de linea o el caracter es el ultimo
-                    else if (IndiceCaracter(caracter) < 4 || IndiceCaracter(caracter) == 9 || i == cadena.Length - 1)
-                    {
-                        // Si el estado anterior fue invalido
-                        if (estadoAnterior == 7 || estadoAnterior == 10 || estadoAnterior == 12)
-                        {
-                            // Saltar error
-                            lblError.Text = error[102] + " en linea " + numeroLinea.ToString();
-                            ResaltarCadena(cajaDeTexto, sbConstante.ToString(), Color.Yellow);
-                            return;
-                        }
-                        // Llamar los metodos de agregacion de token dinamico
-                        AgregarToken(ref sbConstante, 201, ref constantes, numeroLinea);
-                        AgregarToken(ref sbIdentificador, 101, ref identificadores, numeroLinea);
-
-                        // Si el caracter es salto de linea, aumentar el numero de linea
-                        if (IndiceCaracter(caracter) == 9) numeroLinea++;
-                        // Si no, agregarlo a la tabla lexica
-                        else AgregarRawATablaLexica(numeroLinea, caracter.ToString(), codigoToken[caracter].Item1, codigoToken[caracter].Item2);
-                    }
+                    // Agregar a tabla de identificadores
+                    tablaIdentificadores.Rows.Add(numeroLinea, linea, "Expresión válida");
                 }
-            }
-            // Agregar contantes e identificadores de las listas a las tablas
-            foreach (var constante in constantes)
-            {
-                AgregarRawATablaConstantes(constante.Token, constante.Codigo, string.Join(", ", constante.Linea));
-            }
-            foreach(var identificador in identificadores)
-            {
-                AgregarRawATablaIdentificadores(identificador.Token, identificador.Codigo, string.Join(", ", identificador.Linea));
+
+                // Realizar análisis léxico para tokens válidos
+                AnalizarTokens(linea, numeroLinea, tablaLexica, tablaIdentificadores, tablaConstantes);
+                numeroLinea++;
             }
         }
 
@@ -295,6 +242,104 @@ namespace Escaner
                 listaTokens.FirstOrDefault(c => c.Token == textoToken).Linea.Add(numeroLinea);
             }
             token.Clear();
+        }
+
+        private (bool, string) ValidarConPila(string expresion)
+        {
+            Stack<char> pila = new Stack<char>();
+            bool esperandoOperando = true; // Determina si esperamos un operando o un operador
+            char ultimoChar = '\0';
+
+            for (int i = 0; i < expresion.Length; i++)
+            {
+                char c = expresion[i];
+
+                if (c == ' ')
+                    continue;
+
+                if (c == '(')
+                {
+                    pila.Push(c);
+                    esperandoOperando = true;
+                }
+                else if (c == ')')
+                {
+                    if (pila.Count == 0 || pila.Peek() != '(')
+                        return (false, "Error: Paréntesis de cierre sin apertura");
+                    pila.Pop();
+                }
+                else if ("+-*/".Contains(c))
+                {
+                    if (esperandoOperando)
+                        return (false, "Error: Operador sin operando previo");
+                    esperandoOperando = true;
+                }
+                else if (char.IsLetterOrDigit(c))
+                {
+                    if (!esperandoOperando && ultimoChar != '(' && !"*/+-".Contains(ultimoChar))
+                        return (false, "Error: Falta operador entre operandos");
+                    esperandoOperando = false;
+                }
+                else
+                {
+                    return (false, $"Error: Símbolo desconocido '{c}'");
+                }
+
+                ultimoChar = c;
+            }
+
+            if (pila.Count > 0)
+                return (false, "Error: Paréntesis abiertos sin cerrar");
+
+            if (esperandoOperando)
+                return (false, "Error: Expresión incompleta");
+
+            return (true, "Expresión válida");
+        }
+
+        private void AnalizarTokens(string linea, int numeroLinea, DataGridView tablaLexica, DataGridView tablaIdentificadores, DataGridView tablaConstantes)
+        {
+            sbIdentificador.Clear();
+            sbConstante.Clear();
+
+            foreach (char c in linea)
+            {
+                if (char.IsLetter(c))
+                {
+                    sbIdentificador.Append(c);
+                }
+                else if (char.IsDigit(c))
+                {
+                    sbConstante.Append(c);
+                }
+                else
+                {
+                    // Procesar acumuladores al encontrar delimitadores u operadores
+                    if (sbIdentificador.Length > 0)
+                        AgregarToken(ref sbIdentificador, 101, ref identificadores, numeroLinea);
+                    if (sbConstante.Length > 0)
+                        AgregarToken(ref sbConstante, 201, ref constantes, numeroLinea);
+
+                    if (codigoToken.ContainsKey(c))
+                        AgregarRawATablaLexica(numeroLinea, c.ToString(), codigoToken[c].Item1, codigoToken[c].Item2);
+                }
+            }
+
+            // Procesar tokens restantes
+            if (sbIdentificador.Length > 0)
+                AgregarToken(ref sbIdentificador, 101, ref identificadores, numeroLinea);
+            if (sbConstante.Length > 0)
+                AgregarToken(ref sbConstante, 201, ref constantes, numeroLinea);
+        }
+
+        private void tablaIdentificadores_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void tablaConstantes_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
         }
     }
 }

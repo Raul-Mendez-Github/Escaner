@@ -50,10 +50,10 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.tablaIdentificadores = new System.Windows.Forms.DataGridView();
+            this.tablaConstantes = new System.Windows.Forms.DataGridView();
             this.identidicador = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.valorIdentificador = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.lineaIdentificador = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tablaConstantes = new System.Windows.Forms.DataGridView();
             this.constante = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.valorConstante = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.lineaConstante = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -66,9 +66,10 @@
             // cajaDeTexto
             // 
             this.cajaDeTexto.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cajaDeTexto.Location = new System.Drawing.Point(12, 12);
+            this.cajaDeTexto.Location = new System.Drawing.Point(16, 15);
+            this.cajaDeTexto.Margin = new System.Windows.Forms.Padding(4);
             this.cajaDeTexto.Name = "cajaDeTexto";
-            this.cajaDeTexto.Size = new System.Drawing.Size(894, 201);
+            this.cajaDeTexto.Size = new System.Drawing.Size(1191, 246);
             this.cajaDeTexto.TabIndex = 0;
             this.cajaDeTexto.Text = "";
             this.cajaDeTexto.WordWrap = false;
@@ -77,9 +78,11 @@
             // 
             this.barraError.Controls.Add(this.lblError);
             this.barraError.Controls.Add(this.lblMensaje);
-            this.barraError.Location = new System.Drawing.Point(12, 219);
+            this.barraError.Location = new System.Drawing.Point(16, 270);
+            this.barraError.Margin = new System.Windows.Forms.Padding(4);
             this.barraError.Name = "barraError";
-            this.barraError.Size = new System.Drawing.Size(894, 34);
+            this.barraError.Padding = new System.Windows.Forms.Padding(4);
+            this.barraError.Size = new System.Drawing.Size(1192, 42);
             this.barraError.TabIndex = 1;
             this.barraError.TabStop = false;
             // 
@@ -87,9 +90,10 @@
             // 
             this.lblError.AutoSize = true;
             this.lblError.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblError.Location = new System.Drawing.Point(90, 7);
+            this.lblError.Location = new System.Drawing.Point(120, 9);
+            this.lblError.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblError.Name = "lblError";
-            this.lblError.Size = new System.Drawing.Size(109, 20);
+            this.lblError.Size = new System.Drawing.Size(136, 25);
             this.lblError.TabIndex = 2;
             this.lblError.Text = "100 - Sin error";
             // 
@@ -97,18 +101,20 @@
             // 
             this.lblMensaje.AutoSize = true;
             this.lblMensaje.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblMensaje.Location = new System.Drawing.Point(6, 7);
+            this.lblMensaje.Location = new System.Drawing.Point(8, 9);
+            this.lblMensaje.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblMensaje.Name = "lblMensaje";
-            this.lblMensaje.Size = new System.Drawing.Size(78, 20);
+            this.lblMensaje.Size = new System.Drawing.Size(97, 25);
             this.lblMensaje.TabIndex = 0;
             this.lblMensaje.Text = "Mensaje |";
             // 
             // btnValidar
             // 
             this.btnValidar.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnValidar.Location = new System.Drawing.Point(153, 259);
+            this.btnValidar.Location = new System.Drawing.Point(204, 319);
+            this.btnValidar.Margin = new System.Windows.Forms.Padding(4);
             this.btnValidar.Name = "btnValidar";
-            this.btnValidar.Size = new System.Drawing.Size(75, 30);
+            this.btnValidar.Size = new System.Drawing.Size(100, 37);
             this.btnValidar.TabIndex = 2;
             this.btnValidar.Text = "Validar";
             this.btnValidar.UseVisualStyleBackColor = true;
@@ -117,9 +123,10 @@
             // btnBorrar
             // 
             this.btnBorrar.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnBorrar.Location = new System.Drawing.Point(661, 259);
+            this.btnBorrar.Location = new System.Drawing.Point(881, 319);
+            this.btnBorrar.Margin = new System.Windows.Forms.Padding(4);
             this.btnBorrar.Name = "btnBorrar";
-            this.btnBorrar.Size = new System.Drawing.Size(75, 30);
+            this.btnBorrar.Size = new System.Drawing.Size(100, 37);
             this.btnBorrar.TabIndex = 3;
             this.btnBorrar.Text = "Borrar";
             this.btnBorrar.UseVisualStyleBackColor = true;
@@ -129,9 +136,10 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(417, 289);
+            this.label1.Location = new System.Drawing.Point(556, 356);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(97, 20);
+            this.label1.Size = new System.Drawing.Size(124, 25);
             this.label1.TabIndex = 4;
             this.label1.Text = "Tabla Léxica";
             // 
@@ -164,16 +172,19 @@
             dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
             dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
             this.tablaLexica.DefaultCellStyle = dataGridViewCellStyle2;
-            this.tablaLexica.Location = new System.Drawing.Point(12, 312);
+            this.tablaLexica.Location = new System.Drawing.Point(179, 383);
+            this.tablaLexica.Margin = new System.Windows.Forms.Padding(4);
             this.tablaLexica.Name = "tablaLexica";
             this.tablaLexica.ReadOnly = true;
             this.tablaLexica.RowHeadersVisible = false;
-            this.tablaLexica.Size = new System.Drawing.Size(894, 150);
+            this.tablaLexica.RowHeadersWidth = 51;
+            this.tablaLexica.Size = new System.Drawing.Size(893, 185);
             this.tablaLexica.TabIndex = 5;
             // 
             // num
             // 
             this.num.HeaderText = "No.";
+            this.num.MinimumWidth = 6;
             this.num.Name = "num";
             this.num.ReadOnly = true;
             this.num.Width = 150;
@@ -181,6 +192,7 @@
             // linea
             // 
             this.linea.HeaderText = "Linea";
+            this.linea.MinimumWidth = 6;
             this.linea.Name = "linea";
             this.linea.ReadOnly = true;
             this.linea.Width = 180;
@@ -188,6 +200,7 @@
             // token
             // 
             this.token.HeaderText = "Token";
+            this.token.MinimumWidth = 6;
             this.token.Name = "token";
             this.token.ReadOnly = true;
             this.token.Width = 200;
@@ -195,6 +208,7 @@
             // tipo
             // 
             this.tipo.HeaderText = "Tipo";
+            this.tipo.MinimumWidth = 6;
             this.tipo.Name = "tipo";
             this.tipo.ReadOnly = true;
             this.tipo.Width = 180;
@@ -202,6 +216,7 @@
             // codigo
             // 
             this.codigo.HeaderText = "Código";
+            this.codigo.MinimumWidth = 6;
             this.codigo.Name = "codigo";
             this.codigo.ReadOnly = true;
             this.codigo.Width = 180;
@@ -210,21 +225,23 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(138, 465);
+            this.label2.Location = new System.Drawing.Point(184, 572);
+            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(157, 20);
+            this.label2.Size = new System.Drawing.Size(186, 25);
             this.label2.TabIndex = 6;
-            this.label2.Text = "Tabla Identificadores";
+            this.label2.Text = "Expresiones validas";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(657, 465);
+            this.label3.Location = new System.Drawing.Point(847, 572);
+            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(91, 20);
+            this.label3.Size = new System.Drawing.Size(201, 25);
             this.label3.TabIndex = 7;
-            this.label3.Text = "Constantes";
+            this.label3.Text = "Expresiones invalidas";
             // 
             // tablaIdentificadores
             // 
@@ -251,32 +268,15 @@
             dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
             dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
             this.tablaIdentificadores.DefaultCellStyle = dataGridViewCellStyle4;
-            this.tablaIdentificadores.Location = new System.Drawing.Point(12, 488);
+            this.tablaIdentificadores.Location = new System.Drawing.Point(69, 601);
+            this.tablaIdentificadores.Margin = new System.Windows.Forms.Padding(4);
             this.tablaIdentificadores.Name = "tablaIdentificadores";
             this.tablaIdentificadores.ReadOnly = true;
             this.tablaIdentificadores.RowHeadersVisible = false;
-            this.tablaIdentificadores.Size = new System.Drawing.Size(411, 150);
+            this.tablaIdentificadores.RowHeadersWidth = 51;
+            this.tablaIdentificadores.Size = new System.Drawing.Size(437, 185);
             this.tablaIdentificadores.TabIndex = 8;
-            // 
-            // identidicador
-            // 
-            this.identidicador.HeaderText = "Identificador";
-            this.identidicador.Name = "identidicador";
-            this.identidicador.ReadOnly = true;
-            this.identidicador.Width = 180;
-            // 
-            // valorIdentificador
-            // 
-            this.valorIdentificador.HeaderText = "Valor";
-            this.valorIdentificador.Name = "valorIdentificador";
-            this.valorIdentificador.ReadOnly = true;
-            // 
-            // lineaIdentificador
-            // 
-            this.lineaIdentificador.HeaderText = "Linea";
-            this.lineaIdentificador.Name = "lineaIdentificador";
-            this.lineaIdentificador.ReadOnly = true;
-            this.lineaIdentificador.Width = 128;
+            this.tablaIdentificadores.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.tablaIdentificadores_CellContentClick);
             // 
             // tablaConstantes
             // 
@@ -303,38 +303,69 @@
             dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
             dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
             this.tablaConstantes.DefaultCellStyle = dataGridViewCellStyle6;
-            this.tablaConstantes.Location = new System.Drawing.Point(494, 488);
+            this.tablaConstantes.Location = new System.Drawing.Point(723, 601);
+            this.tablaConstantes.Margin = new System.Windows.Forms.Padding(4);
             this.tablaConstantes.Name = "tablaConstantes";
             this.tablaConstantes.ReadOnly = true;
             this.tablaConstantes.RowHeadersVisible = false;
-            this.tablaConstantes.Size = new System.Drawing.Size(412, 150);
+            this.tablaConstantes.RowHeadersWidth = 51;
+            this.tablaConstantes.Size = new System.Drawing.Size(437, 185);
             this.tablaConstantes.TabIndex = 9;
+            this.tablaConstantes.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.tablaConstantes_CellContentClick);
+            // 
+            // identidicador
+            // 
+            this.identidicador.HeaderText = "Num. Linea";
+            this.identidicador.MinimumWidth = 6;
+            this.identidicador.Name = "identidicador";
+            this.identidicador.ReadOnly = true;
+            this.identidicador.Width = 110;
+            // 
+            // valorIdentificador
+            // 
+            this.valorIdentificador.HeaderText = "Expresión";
+            this.valorIdentificador.MinimumWidth = 6;
+            this.valorIdentificador.Name = "valorIdentificador";
+            this.valorIdentificador.ReadOnly = true;
+            this.valorIdentificador.Width = 180;
+            // 
+            // lineaIdentificador
+            // 
+            this.lineaIdentificador.HeaderText = "Valida";
+            this.lineaIdentificador.MinimumWidth = 6;
+            this.lineaIdentificador.Name = "lineaIdentificador";
+            this.lineaIdentificador.ReadOnly = true;
+            this.lineaIdentificador.Width = 144;
             // 
             // constante
             // 
-            this.constante.HeaderText = "Constante";
+            this.constante.HeaderText = "Num. Linea";
+            this.constante.MinimumWidth = 6;
             this.constante.Name = "constante";
             this.constante.ReadOnly = true;
-            this.constante.Width = 180;
+            this.constante.Width = 110;
             // 
             // valorConstante
             // 
-            this.valorConstante.HeaderText = "Valor";
+            this.valorConstante.HeaderText = "Expresión";
+            this.valorConstante.MinimumWidth = 6;
             this.valorConstante.Name = "valorConstante";
             this.valorConstante.ReadOnly = true;
+            this.valorConstante.Width = 160;
             // 
             // lineaConstante
             // 
-            this.lineaConstante.HeaderText = "Linea";
+            this.lineaConstante.HeaderText = "Invalida";
+            this.lineaConstante.MinimumWidth = 6;
             this.lineaConstante.Name = "lineaConstante";
             this.lineaConstante.ReadOnly = true;
-            this.lineaConstante.Width = 128;
+            this.lineaConstante.Width = 164;
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(918, 650);
+            this.ClientSize = new System.Drawing.Size(1224, 800);
             this.Controls.Add(this.tablaConstantes);
             this.Controls.Add(this.tablaIdentificadores);
             this.Controls.Add(this.label3);
@@ -346,6 +377,7 @@
             this.Controls.Add(this.barraError);
             this.Controls.Add(this.cajaDeTexto);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "Form1";
