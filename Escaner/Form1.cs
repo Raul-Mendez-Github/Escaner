@@ -278,8 +278,11 @@ namespace Escaner
             Stack<char> pila = new Stack<char>();
             pila.Push('$');
             pila.Push('P');
-            tablaLexica.Rows.Add(i++, 0, '$', 0, 199); // Asegúrate de agregar el símbolo de fin correctamente
+            tablaLexica.Rows.Add(i++, 0, '$', 0, 199); // Agregar el símbolo de fin correctamente
             int APUN = 0;
+
+            string expresionActual = ""; // Acumulador para la expresión actual
+            int numeroExpresion = 1;
 
             while (pila.Count != 0)
             {
@@ -290,7 +293,16 @@ namespace Escaner
                 {
                     if (X == K)
                     {
+                        // Agregar el token actual al acumulador de la expresión
+                        expresionActual += tablaLexica.Rows[APUN].Cells[2].Value.ToString();
                         APUN++;
+
+                        if (X == ';' || X == '$') // Si se encuentra un delimitador de expresión
+                        {
+                            // Registrar la expresión acumulada en el DataGridView
+                            tablaExpresiones.Rows.Add(numeroExpresion++, expresionActual.Trim(), "Válida");
+                            expresionActual = ""; // Reiniciar acumulador
+                        }
 
                         if (APUN == tablaLexica.Rows.Count)
                         {
@@ -327,8 +339,8 @@ namespace Escaner
                     }
                 }
             }
-
         }
+
 
         // Método para determinar si un símbolo es terminal
         private bool EsTerminal(char simbolo)
