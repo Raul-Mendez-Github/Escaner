@@ -19,7 +19,7 @@ namespace Escaner
         List<TokenDinamico> identificadores = new List<TokenDinamico>();
         List<TokenDinamico> constantes = new List<TokenDinamico>();
 
-        int[,] TT =
+        int[,] TTLexica =
                 //D  O  λ  $  L  e  d pc  p  s
           /*q0*/{{1, 2, 3, 4, 5, 5, 6,12,12, 0},
           /*q1*/ {1, 2, 3, 4, 5, 5, 6,12,12, 0}, // Delimitador
@@ -34,6 +34,15 @@ namespace Escaner
          /*q10*/ {1, 2, 3, 4,12,12,11,12,12, 0}, // Error 102
          /*q11*/ {1, 2, 3, 4,12,12,11,12,12, 0}, // Constante
          /*q12*/ {1, 2, 3, 4,12,12,12,12,12, 0}};// Error 102
+        
+        (int,string,string)[,] TTSintactica =
+              //        (             )          O            R
+        /*q0*/ {{(1,"λ","("), (5, "λ", "λ"), (3,"λ","λ"), (5,"λ","λ")},
+        /*q1*/  {(1,"λ","("), (2,"(","λ"), (3,"λ","λ"), (5,"λ","λ")},
+        /*q2*/  {(5,"λ","("), (2,"(","λ"), (3,"λ","λ"), (4,"λ","λ")},
+        /*q3*/  {(5,"λ","λ"), (2,"(","λ"), (5,"λ","λ"), (0,"λ","λ")},
+        /*q4*/  {(1,"λ","("), (5,"λ","λ"), (2,"λ","λ"), (5,"λ","λ")},
+        /*q5*/  {(5,"λ","λ"), (5,"λ","λ"), (5,"λ","λ"), (5,"λ","λ")}};
 
         // Asignar el tipo del token
         Dictionary<int, string> tipoToken = new Dictionary<int, string>
@@ -69,11 +78,24 @@ namespace Escaner
             if (caracter == '\n') return 9;
             return -1; // Error 101, Simbolo desconocido
         }
+        public int IndiceCodigo(int codigo)
+        {
+            if (codigo == 50) return 0; // (
+            if (codigo == 51) return 1; // )
+            if (codigo > 100) return 2; // Operando
+            if (codigo >= 70 && codigo <= 73) return 3; // Operador
+            return -1;
+        }
         Dictionary<int, string> error = new Dictionary<int, string>
         {
                 { 100, "100 - Sin errores" },
-                { 101, "Error 101 - Símbolo Desconocido" },
-                { 102, "Error 102 - Elemento Inválido" }
+                { 101, "Error 1:101 - Símbolo Desconocido" },
+                { 102, "Error 1:102 - Elemento Inválido" },
+                { 103, "Error 2:103 - Inicio con parentesis de cierre" },
+                { 104, "Error 2:104 - Falta operando" },
+                { 105, "Error 2:105 - Falta operador" },
+                { 106, "Error 2:106 - Faltan parentesis de apertura" },
+                { 107, "Error 2:107 - Faltan parentesis de cierre" }
         };
 
         public Form1()
@@ -99,9 +121,10 @@ namespace Escaner
             sbConstante.Clear();
             identificadores.Clear();
             constantes.Clear();
+            tablaExpresiones.Rows.Clear();
 
             // Llamar a validar el texto
-            ValidarTexto(cajaDeTexto, tablaLexica, tablaIdentificadores, tablaConstantes);
+            AnalisisLexico(cajaDeTexto, tablaLexica, tablaIdentificadores, tablaConstantes);
         }
         private void btnBorrar_Click(object sender, EventArgs e)
         {
@@ -111,9 +134,10 @@ namespace Escaner
             tablaConstantes.Rows.Clear();
             tablaIdentificadores.Rows.Clear();
             tablaLexica.Rows.Clear();
+            tablaExpresiones.Rows.Clear();
         }
 
-        private void ValidarTexto(RichTextBox rtb, DataGridView tablaLexica, DataGridView tablaIdentificadores, DataGridView tablaConstantes)
+        private void AnalisisLexico(RichTextBox rtb, DataGridView tablaLexica, DataGridView tablaIdentificadores, DataGridView tablaConstantes)
         {
             string cadena = rtb.Text + '\n';
             int estado = 0, numeroLinea = 1, estadoAnterior = 0;
@@ -123,6 +147,24 @@ namespace Escaner
             for (int i = 0; i < cadena.Length; i++)
             {
                 char caracter = cadena[i];
+
+                // Detectar espacios y separarlos
+                if (caracter == ' ')
+                {
+                    // Si se está acumulando un identificador o constante, separarlos
+                    if (estado == 5) // Identificador
+                    {
+                        AgregarToken(ref sbIdentificador, 101, ref identificadores, numeroLinea);
+                        estado = 0; // Reinicia el estado
+                    }
+                    else if (estado >= 6) // Constante
+                    {
+                        AgregarToken(ref sbConstante, 201, ref constantes, numeroLinea);
+                        estado = 0; // Reinicia el estado
+                    }
+                    continue;
+                }
+
                 if (IndiceCaracter(caracter) == -1) // Detectar cadenas invalidas (fuera del diccionario)
                 {
                     lblError.Text = error[101] + " en linea " + numeroLinea.ToString();
@@ -133,7 +175,7 @@ namespace Escaner
                 {
                     // Guardar el estado actual y pasar al siguiente
                     estadoAnterior = estado;
-                    estado = TT[estado, IndiceCaracter(caracter)];
+                    estado = TTLexica[estado, IndiceCaracter(caracter)];
 
                     // Si el nuevo estado indica identificador
                     if (estado == 5)
@@ -198,6 +240,119 @@ namespace Escaner
             foreach(var identificador in identificadores)
             {
                 AgregarRawATablaIdentificadores(identificador.Token, identificador.Codigo, string.Join(", ", identificador.Linea));
+            }
+            AnalisisSintactico();
+        }
+
+        private void AnalisisSintactico()
+        {
+            Stack<char> pilaParentesis = new Stack<char>();
+            string cadena = "";
+            int estado = 0;
+            string lineaActual = "1";
+            string validez = "Válida";
+            bool esperandoOperador = false; // Nueva variable para controlar cuando se espera un operador
+
+            foreach (DataGridViewRow row in tablaLexica.Rows)
+            {
+                string token = row.Cells[2].Value.ToString();
+                string linea = row.Cells[1].Value.ToString();
+                string codigo = row.Cells[4].Value.ToString();
+
+                // Cambiar de línea
+                if (lineaActual != linea)
+                {
+                    // Verificar si hay paréntesis sin cerrar al final de la línea actual
+                    if (pilaParentesis.Count > 0)
+                    {
+                        lblError.Text = error[107] + " en línea " + lineaActual;
+                        validez = "Inválida";
+                    }
+
+                    lineaActual = linea;
+
+                    // Registrar la línea procesada
+                    if (cadena != "")
+                    {
+                        if (estado == 2) tablaExpresiones.Rows.Add(tablaExpresiones.Rows.Count + 1, cadena, validez);
+                        else tablaExpresiones.Rows.Add(tablaExpresiones.Rows.Count + 1, cadena, "Inválida");
+                    }
+
+                    // Reiniciar variables para la nueva línea
+                    cadena = "";
+                    validez = "Válida";
+                    pilaParentesis.Clear();
+                    estado = 0;
+                    esperandoOperador = false;
+                }
+
+                cadena += token;
+
+                // Verificar el estado y los errores posibles
+                int indice = IndiceCodigo(Convert.ToInt32(codigo));
+                var estadoSiguiente = TTSintactica[estado, indice];
+
+                if (estadoSiguiente.Item1 == 5) // Estado de no aceptación
+                {
+                    if (estado == 0)
+                    {
+                        if (token == ")") lblError.Text = error[103] + " en línea " + linea;
+                        else lblError.Text = error[104] + " en línea " + linea;
+                    }
+                    else if (estado == 1 || estado == 4) lblError.Text = error[104] + " en línea " + linea;
+                    else if (estado == 2 || estado == 3)
+                    {
+                        lblError.Text = error[105] + " en línea " + linea;
+                        cadena = cadena.Insert(cadena.Length - 1, " ");
+                    }
+                    validez = "Inválida";
+                    continue; // Salta el resto del procesamiento
+                }
+
+                estado = estadoSiguiente.Item1;
+
+                // Manejo de la pila de paréntesis
+                if (estadoSiguiente.Item3 != "λ") // Apertura de paréntesis
+                {
+                    pilaParentesis.Push('(');
+                    esperandoOperador = false; // Al abrir paréntesis no se espera operador inmediatamente
+                }
+
+                if (estadoSiguiente.Item2 != "λ") // Cierre de paréntesis
+                {
+                    if (pilaParentesis.Count == 0) // No hay paréntesis de apertura correspondiente
+                    {
+                        lblError.Text = error[106] + " en línea " + linea; // Faltan paréntesis de apertura
+                        validez = "Inválida";
+                    }
+                    else
+                    {
+                        pilaParentesis.Pop(); // Paréntesis de apertura correspondiente encontrado
+                    }
+
+                    // Validar si falta operador después de un paréntesis cerrado
+                    if (esperandoOperador && token != "(" && token != ")") // Si se espera un operador, pero el token es otro
+                    {
+                        lblError.Text = error[105] + " en línea " + linea; // Falta operador
+                        validez = "Inválida";
+                    }
+
+                    esperandoOperador = true; // Después de un paréntesis de cierre, esperamos un operador o paréntesis de apertura
+                }
+            }
+
+            // Verificar si al final de la última línea quedan paréntesis sin cerrar
+            if (pilaParentesis.Count > 0)
+            {
+                lblError.Text = error[107] + " en línea " + lineaActual;
+                validez = "Inválida";
+            }
+
+            // Registrar la última línea procesada
+            if (!string.IsNullOrEmpty(cadena))
+            {
+                if (estado == 2) tablaExpresiones.Rows.Add(tablaExpresiones.Rows.Count + 1, cadena, validez);
+                else tablaExpresiones.Rows.Add(tablaExpresiones.Rows.Count + 1, cadena, "Inválida");
             }
         }
 
