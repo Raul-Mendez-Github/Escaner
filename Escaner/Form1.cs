@@ -18,6 +18,9 @@ namespace Escaner
 
         List<TokenDinamico> identificadores = new List<TokenDinamico>();
         List<TokenDinamico> constantes = new List<TokenDinamico>();
+        
+        bool hayError = false;
+
 
         int[,] TTLexica =
                 //D  O  λ  $  L  e  d pc  p  s
@@ -34,15 +37,15 @@ namespace Escaner
          /*q10*/ {1, 2, 3, 4,12,12,11,12,12, 0}, // Error 102
          /*q11*/ {1, 2, 3, 4,12,12,11,12,12, 0}, // Constante
          /*q12*/ {1, 2, 3, 4,12,12,12,12,12, 0}};// Error 102
-        
-        (int,string,string)[,] TTSintactica =
-              //        (             )          O            R
-        /*q0*/ {{(1,"λ","("), (5, "λ", "λ"), (3,"λ","λ"), (5,"λ","λ")},
-        /*q1*/  {(1,"λ","("), (2,"(","λ"), (3,"λ","λ"), (5,"λ","λ")},
-        /*q2*/  {(5,"λ","("), (2,"(","λ"), (3,"λ","λ"), (4,"λ","λ")},
-        /*q3*/  {(5,"λ","λ"), (2,"(","λ"), (5,"λ","λ"), (0,"λ","λ")},
-        /*q4*/  {(1,"λ","("), (5,"λ","λ"), (2,"λ","λ"), (5,"λ","λ")},
-        /*q5*/  {(5,"λ","λ"), (5,"λ","λ"), (5,"λ","λ"), (5,"λ","λ")}};
+
+        string[,] TablaSintactica =
+            //    (       p     )     r    ;    $
+        /*P*/{{"(FA;P", "F;P", ""  , ""  , "" , "λ"},
+        /*A*/ {"P)"   , "P)" , ")G", ""  , "" , "" },
+        /*F*/ {"(FA"  , "OG" , ""  , ""  , "" , "" },
+        /*G*/ {""     , ""   , "λ" , "RF", "λ", "λ" },
+        /*O*/ {""     , "p"  , ""  , ""  , "" , ""},
+        /*R*/ {""     , ""   , ""  , "r" , "" , "" }};
 
         // Asignar el tipo del token
         Dictionary<int, string> tipoToken = new Dictionary<int, string>
@@ -86,6 +89,27 @@ namespace Escaner
             if (codigo >= 70 && codigo <= 73) return 3; // Operador
             return -1;
         }
+        public int IndiceRegla(char regla)
+        {
+            if (regla == 'P') return 0;
+            if (regla == 'A') return 1;
+            if (regla == 'F') return 2;
+            if (regla == 'G') return 3;
+            if (regla == 'O') return 4;
+            if (regla == 'R') return 5;
+            return -1;
+        }
+        
+        public char TokenPorCodigo(int codigo)
+        {
+            if (codigo == 50) return '('; 
+            if (codigo > 100) return 'p';
+            if (codigo == 51) return ')';
+            if (codigo >= 70 && codigo <= 73) return 'r';
+            if (codigo == 52) return ';';
+            if (codigo == 199) return '$';
+            return ' ';
+        }
         Dictionary<int, string> error = new Dictionary<int, string>
         {
                 { 100, "100 - Sin errores" },
@@ -105,6 +129,8 @@ namespace Escaner
 
         private void btnValidar_Click(object sender, EventArgs e)
         {
+            hayError = false;
+
             // Reiniciar variable de indice
             i = 1;
 
@@ -125,6 +151,7 @@ namespace Escaner
 
             // Llamar a validar el texto
             AnalisisLexico(cajaDeTexto, tablaLexica, tablaIdentificadores, tablaConstantes);
+            if (!hayError) AnalisisSintactico();
         }
         private void btnBorrar_Click(object sender, EventArgs e)
         {
@@ -168,6 +195,7 @@ namespace Escaner
                 if (IndiceCaracter(caracter) == -1) // Detectar cadenas invalidas (fuera del diccionario)
                 {
                     lblError.Text = error[101] + " en linea " + numeroLinea.ToString();
+                    hayError = true;
                     ResaltarCaracter(rtb, caracter, Color.Yellow);
                     return;
                 }
@@ -200,6 +228,7 @@ namespace Escaner
                             {
                                 // Saltar error
                                 lblError.Text = error[102] + " en linea " + numeroLinea.ToString();
+                                hayError = true;
                                 ResaltarCadena(cajaDeTexto, sbConstante.ToString(), Color.Yellow);
                                 return;
                             }
@@ -218,6 +247,7 @@ namespace Escaner
                         {
                             // Saltar error
                             lblError.Text = error[102] + " en linea " + numeroLinea.ToString();
+                            hayError = true;
                             ResaltarCadena(cajaDeTexto, sbConstante.ToString(), Color.Yellow);
                             return;
                         }
@@ -241,120 +271,86 @@ namespace Escaner
             {
                 AgregarRawATablaIdentificadores(identificador.Token, identificador.Codigo, string.Join(", ", identificador.Linea));
             }
-            AnalisisSintactico();
         }
 
         private void AnalisisSintactico()
         {
-            Stack<char> pilaParentesis = new Stack<char>();
-            string cadena = "";
-            int estado = 0;
-            string lineaActual = "1";
-            string validez = "Válida";
-            bool esperandoOperador = false; // Nueva variable para controlar cuando se espera un operador
+            Stack<char> pila = new Stack<char>();
+            pila.Push('$');
+            pila.Push('P');
+            tablaLexica.Rows.Add(i++, 0, '$', 0, 199); // Asegúrate de agregar el símbolo de fin correctamente
+            int APUN = 0;
 
-            foreach (DataGridViewRow row in tablaLexica.Rows)
+            while (pila.Count != 0)
             {
-                string token = row.Cells[2].Value.ToString();
-                string linea = row.Cells[1].Value.ToString();
-                string codigo = row.Cells[4].Value.ToString();
+                char X = pila.Pop();
+                char K = TokenPorCodigo(Convert.ToInt32(tablaLexica.Rows[APUN].Cells[4].Value));
 
-                // Cambiar de línea
-                if (lineaActual != linea)
+                if (EsTerminal(X) || X == '$')
                 {
-                    // Verificar si hay paréntesis sin cerrar al final de la línea actual
-                    if (pilaParentesis.Count > 0)
+                    if (X == K)
                     {
-                        lblError.Text = error[107] + " en línea " + lineaActual;
-                        validez = "Inválida";
-                    }
+                        APUN++;
 
-                    lineaActual = linea;
-
-                    // Registrar la línea procesada
-                    if (cadena != "")
-                    {
-                        if (estado == 2) tablaExpresiones.Rows.Add(tablaExpresiones.Rows.Count + 1, cadena, validez);
-                        else tablaExpresiones.Rows.Add(tablaExpresiones.Rows.Count + 1, cadena, "Inválida");
-                    }
-
-                    // Reiniciar variables para la nueva línea
-                    cadena = "";
-                    validez = "Válida";
-                    pilaParentesis.Clear();
-                    estado = 0;
-                    esperandoOperador = false;
-                }
-
-                cadena += token;
-
-                // Verificar el estado y los errores posibles
-                int indice = IndiceCodigo(Convert.ToInt32(codigo));
-                var estadoSiguiente = TTSintactica[estado, indice];
-
-                if (estadoSiguiente.Item1 == 5) // Estado de no aceptación
-                {
-                    if (estado == 0)
-                    {
-                        if (token == ")") lblError.Text = error[103] + " en línea " + linea;
-                        else lblError.Text = error[104] + " en línea " + linea;
-                    }
-                    else if (estado == 1 || estado == 4) lblError.Text = error[104] + " en línea " + linea;
-                    else if (estado == 2 || estado == 3)
-                    {
-                        lblError.Text = error[105] + " en línea " + linea;
-                        cadena = cadena.Insert(cadena.Length - 1, " ");
-                    }
-                    validez = "Inválida";
-                    continue; // Salta el resto del procesamiento
-                }
-
-                estado = estadoSiguiente.Item1;
-
-                // Manejo de la pila de paréntesis
-                if (estadoSiguiente.Item3 != "λ") // Apertura de paréntesis
-                {
-                    pilaParentesis.Push('(');
-                    esperandoOperador = false; // Al abrir paréntesis no se espera operador inmediatamente
-                }
-
-                if (estadoSiguiente.Item2 != "λ") // Cierre de paréntesis
-                {
-                    if (pilaParentesis.Count == 0) // No hay paréntesis de apertura correspondiente
-                    {
-                        lblError.Text = error[106] + " en línea " + linea; // Faltan paréntesis de apertura
-                        validez = "Inválida";
+                        if (APUN == tablaLexica.Rows.Count)
+                        {
+                            MessageBox.Show("Análisis sintáctico completado con éxito.");
+                            return;
+                        }
                     }
                     else
                     {
-                        pilaParentesis.Pop(); // Paréntesis de apertura correspondiente encontrado
+                        MessageBox.Show($"ERROR: Terminal no coincide. Esperado: {X}, encontrado: {K}");
+                        return;
                     }
+                }
+                else
+                {
+                    int fila = IndiceRegla(X);
+                    int columna = IndiceColumna(K);
 
-                    // Validar si falta operador después de un paréntesis cerrado
-                    if (esperandoOperador && token != "(" && token != ")") // Si se espera un operador, pero el token es otro
+                    if (fila != -1 && columna != -1 && !string.IsNullOrEmpty(TablaSintactica[fila, columna]))
                     {
-                        lblError.Text = error[105] + " en línea " + linea; // Falta operador
-                        validez = "Inválida";
+                        string produccion = TablaSintactica[fila, columna];
+                        if (produccion != "λ") // Si la producción no es λ
+                        {
+                            for (int j = produccion.Length - 1; j >= 0; j--)
+                            {
+                                pila.Push(produccion[j]);
+                            }
+                        }
                     }
-
-                    esperandoOperador = true; // Después de un paréntesis de cierre, esperamos un operador o paréntesis de apertura
+                    else
+                    {
+                        MessageBox.Show($"ERROR: No hay producción para {X}, {K}.");
+                        return;
+                    }
                 }
             }
 
-            // Verificar si al final de la última línea quedan paréntesis sin cerrar
-            if (pilaParentesis.Count > 0)
-            {
-                lblError.Text = error[107] + " en línea " + lineaActual;
-                validez = "Inválida";
-            }
+        }
 
-            // Registrar la última línea procesada
-            if (!string.IsNullOrEmpty(cadena))
+        // Método para determinar si un símbolo es terminal
+        private bool EsTerminal(char simbolo)
+        {
+            return simbolo == '(' || simbolo == 'p' || simbolo == ')' || simbolo == 'r' || simbolo == ';' || simbolo == '$';
+        }
+
+        // Método para obtener el índice de la columna correspondiente al símbolo
+        private int IndiceColumna(char simbolo)
+        {
+            switch (simbolo)
             {
-                if (estado == 2) tablaExpresiones.Rows.Add(tablaExpresiones.Rows.Count + 1, cadena, validez);
-                else tablaExpresiones.Rows.Add(tablaExpresiones.Rows.Count + 1, cadena, "Inválida");
+                case '(': return 0;
+                case 'p': return 1;
+                case ')': return 2;
+                case 'r': return 3;
+                case ';': return 4;
+                case '$': return 5;
+                default: return -1;
             }
         }
+
 
         private bool ExisteToken(List<TokenDinamico> tokens, string token)
         {
