@@ -37,12 +37,12 @@ namespace Escaner
         
         (int,string,string)[,] TTSintactica =
               //        (             )          O            R
-        /*q0*/ {{(1,"λ","("), (5, "λ", "λ"), (3,"λ","λ"), (5,"λ","λ")},
-        /*q1*/  {(1,"λ","("), (2,"(","λ"), (3,"λ","λ"), (5,"λ","λ")},
-        /*q2*/  {(5,"λ","("), (2,"(","λ"), (3,"λ","λ"), (4,"λ","λ")},
-        /*q3*/  {(5,"λ","λ"), (2,"(","λ"), (5,"λ","λ"), (0,"λ","λ")},
-        /*q4*/  {(1,"λ","("), (5,"λ","λ"), (2,"λ","λ"), (5,"λ","λ")},
-        /*q5*/  {(5,"λ","λ"), (5,"λ","λ"), (5,"λ","λ"), (5,"λ","λ")}};
+        /*q0*/ {{(1,"λ","("), (5, "λ", "λ"),(3,"λ","λ"), (5,"λ","λ")},
+        /*q1*/  {(1,"λ","("), (2,"(","λ"),  (3,"λ","λ"), (5,"λ","λ")},
+        /*q2*/  {(5,"λ","("), (2,"(","λ"),  (5,"λ","λ"), (4,"λ","λ")},
+        /*q3*/  {(5,"λ","λ"), (2,"(","λ"),  (5,"λ","λ"), (0,"λ","λ")},
+        /*q4*/  {(1,"λ","("), (5,"λ","λ"),  (2,"λ","λ"), (5,"λ","λ")},
+        /*q5*/  {(5,"λ","λ"), (5,"λ","λ"),  (5,"λ","λ"), (5,"λ","λ")}};
 
         // Asignar el tipo del token
         Dictionary<int, string> tipoToken = new Dictionary<int, string>
@@ -88,7 +88,8 @@ namespace Escaner
         }
         Dictionary<int, string> error = new Dictionary<int, string>
         {
-                { 100, "100 - Sin errores" },
+                { 99, "99 - Error de sintaxis" },
+                { 100, "100 - Sin error" },
                 { 101, "Error 1:101 - Símbolo Desconocido" },
                 { 102, "Error 1:102 - Elemento Inválido" },
                 { 103, "Error 2:103 - Inicio con parentesis de cierre" },
@@ -274,7 +275,7 @@ namespace Escaner
                     // Registrar la línea procesada
                     if (cadena != "")
                     {
-                        if (estado == 2) tablaExpresiones.Rows.Add(tablaExpresiones.Rows.Count + 1, cadena, validez);
+                        if (estado == 2 || estado == 3) tablaExpresiones.Rows.Add(tablaExpresiones.Rows.Count + 1, cadena, validez);
                         else tablaExpresiones.Rows.Add(tablaExpresiones.Rows.Count + 1, cadena, "Inválida");
                     }
 
@@ -288,59 +289,61 @@ namespace Escaner
 
                 cadena += token;
 
-                // Verificar el estado y los errores posibles
-                int indice = IndiceCodigo(Convert.ToInt32(codigo));
-                var estadoSiguiente = TTSintactica[estado, indice];
-
-                if (estadoSiguiente.Item1 == 5) // Estado de no aceptación
-                {
-                    if (estado == 0)
-                    {
-                        if (token == ")") lblError.Text = error[103] + " en línea " + linea;
-                        else lblError.Text = error[104] + " en línea " + linea;
-                    }
-                    else if (estado == 1 || estado == 4) lblError.Text = error[104] + " en línea " + linea;
-                    else if (estado == 2 || estado == 3)
-                    {
-                        lblError.Text = error[105] + " en línea " + linea;
-                        cadena = cadena.Insert(cadena.Length - 1, " ");
-                    }
-                    validez = "Inválida";
-                    continue; // Salta el resto del procesamiento
-                }
-
-                estado = estadoSiguiente.Item1;
-
                 // Manejo de la pila de paréntesis
-                if (estadoSiguiente.Item3 != "λ") // Apertura de paréntesis
+                if (token == "(") // Apertura de paréntesis
                 {
                     pilaParentesis.Push('(');
                     esperandoOperador = false; // Al abrir paréntesis no se espera operador inmediatamente
                 }
 
-                if (estadoSiguiente.Item2 != "λ") // Cierre de paréntesis
-                {
-                    if (pilaParentesis.Count == 0) // No hay paréntesis de apertura correspondiente
+                // Verificar el estado y los errores posibles
+                int indice = IndiceCodigo(Convert.ToInt32(codigo));
+                try { 
+                    var estadoSiguiente = TTSintactica[estado, indice];
+                    if (estadoSiguiente.Item1 == 5) // Estado de no aceptación
                     {
-                        lblError.Text = error[106] + " en línea " + linea; // Faltan paréntesis de apertura
+                        if (estado == 0)
+                        {
+                            if (token == ")") lblError.Text = error[103] + " en línea " + linea;
+                            else lblError.Text = error[104] + " en línea " + linea;
+                        }
+                        else if (estado == 1 || estado == 4) lblError.Text = error[104] + " en línea " + linea;
+                        else if (estado == 2 || estado == 3)
+                        {
+                            lblError.Text = error[105] + " en línea " + linea;
+                            cadena = cadena.Insert(cadena.Length - 1, " ");
+                        }
                         validez = "Inválida";
-                    }
-                    else
-                    {
-                        pilaParentesis.Pop(); // Paréntesis de apertura correspondiente encontrado
+                        continue; // Salta el resto del procesamiento
                     }
 
-                    // Validar si falta operador después de un paréntesis cerrado
-                    if (esperandoOperador && token != "(" && token != ")") // Si se espera un operador, pero el token es otro
-                    {
-                        lblError.Text = error[105] + " en línea " + linea; // Falta operador
-                        validez = "Inválida";
-                    }
+                    estado = estadoSiguiente.Item1;
 
-                    esperandoOperador = true; // Después de un paréntesis de cierre, esperamos un operador o paréntesis de apertura
+
+                    if (estadoSiguiente.Item2 != "λ") // Cierre de paréntesis
+                    {
+                        if (pilaParentesis.Count == 0) // No hay paréntesis de apertura correspondiente
+                        {
+                            lblError.Text = error[106] + " en línea " + linea; // Faltan paréntesis de apertura
+                            validez = "Inválida";
+                        }
+                        else
+                        {
+                            pilaParentesis.Pop(); // Paréntesis de apertura correspondiente encontrado
+                        }
+
+                        // Validar si falta operador después de un paréntesis cerrado
+                        if (esperandoOperador && token != "(" && token != ")") // Si se espera un operador, pero el token es otro
+                        {
+                            lblError.Text = error[105] + " en línea " + linea; // Falta operador
+                            validez = "Inválida";
+                        }
+
+                        esperandoOperador = true; // Después de un paréntesis de cierre, esperamos un operador o paréntesis de apertura
+                    }
                 }
+                catch { return; }
             }
-
             // Verificar si al final de la última línea quedan paréntesis sin cerrar
             if (pilaParentesis.Count > 0)
             {
@@ -351,8 +354,12 @@ namespace Escaner
             // Registrar la última línea procesada
             if (!string.IsNullOrEmpty(cadena))
             {
-                if (estado == 2) tablaExpresiones.Rows.Add(tablaExpresiones.Rows.Count + 1, cadena, validez);
-                else tablaExpresiones.Rows.Add(tablaExpresiones.Rows.Count + 1, cadena, "Inválida");
+                if (estado == 2 || estado == 3) tablaExpresiones.Rows.Add(tablaExpresiones.Rows.Count + 1, cadena, validez);
+                else
+                {
+                    tablaExpresiones.Rows.Add(tablaExpresiones.Rows.Count + 1, cadena, "Inválida");
+                    lblError.Text = error[99];
+                }
             }
         }
 
