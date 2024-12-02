@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -40,12 +41,12 @@ namespace Escaner
 
         string[,] TablaSintactica =
             //    (       p     )     r    ;    $
-        /*P*/{{"(FA;P", "F;P", ""  , ""  , "" , "λ"},
-        /*A*/ {"P)"   , "P)" , ")G", ""  , "" , "" },
-        /*F*/ {"(FA"  , "OG" , ""  , ""  , "" , "" },
-        /*G*/ {""     , ""   , "λ" , "RF", "λ", "λ" },
-        /*O*/ {""     , "p"  , ""  , ""  , "" , ""},
-        /*R*/ {""     , ""   , ""  , "r" , "" , "" }};
+        /*P*/{{"(FA;P", "F;P", ""  , ""  , "" , "λ"}, // Inicio - P
+        /*A*/ {"P)"   , "P)" , ")G", ""  , "" , "" }, // Cierre paréntesis - A
+        /*F*/ {"(FA"  , "OG" , ""  , ""  , "" , "" }, // Después de operador - F
+        /*G*/ {""     , ""   , "λ" , "RF", "λ", "λ" }, // Después de operando - G
+        /*O*/ {""     , "p"  , ""  , ""  , "" , ""},   // Operando - O
+        /*R*/ {""     , ""   , ""  , "r" , "" , "" }}; // Operador - R
 
         // Asignar el tipo del token
         Dictionary<int, string> tipoToken = new Dictionary<int, string>
@@ -72,7 +73,7 @@ namespace Escaner
             if (caracter == '(' || caracter == ')' || caracter == ';') return 0;
             if (caracter == '+' || caracter == '-' || caracter == '*' || caracter == '/') return 1;
             if (caracter == 'λ') return 2;
-            if (caracter == '$') return 3;
+            //if (caracter == '$') return 3;
             if (char.IsLetter(caracter) && !(caracter == 'E' || caracter == 'e')) return 4;
             if (caracter == 'E' || caracter == 'e') return 5;
             if (char.IsDigit(caracter)) return 6;
@@ -99,29 +100,29 @@ namespace Escaner
             if (regla == 'R') return 5;
             return -1;
         }
-        
         public char TokenPorCodigo(int codigo)
         {
             if (codigo == 50) return '('; 
-            if (codigo > 100) return 'p';
             if (codigo == 51) return ')';
-            if (codigo >= 70 && codigo <= 73) return 'r';
             if (codigo == 52) return ';';
             if (codigo == 199) return '$';
+            if (codigo >= 70 && codigo <= 73) return 'r';
+            if (codigo > 100) return 'p';
             return ' ';
         }
         Dictionary<int, string> error = new Dictionary<int, string>
         {
-                { 100, "100 - Sin errores" },
+                { 99, "99 - Error de sintaxis" },
+                { 100, "100 - Sin error" },
                 { 101, "Error 1:101 - Símbolo Desconocido" },
                 { 102, "Error 1:102 - Elemento Inválido" },
                 { 103, "Error 2:103 - Inicio con parentesis de cierre" },
                 { 104, "Error 2:104 - Falta operando" },
                 { 105, "Error 2:105 - Falta operador" },
                 { 106, "Error 2:106 - Faltan parentesis de apertura" },
-                { 107, "Error 2:107 - Faltan parentesis de cierre" }
+                { 107, "Error 2:107 - Faltan parentesis de cierre" },
+                { 108, "Error 2:108 - Falta punto y coma" }
         };
-
         public Form1()
         {
             InitializeComponent();
@@ -163,7 +164,6 @@ namespace Escaner
             tablaLexica.Rows.Clear();
             tablaExpresiones.Rows.Clear();
         }
-
         private void AnalisisLexico(RichTextBox rtb, DataGridView tablaLexica, DataGridView tablaIdentificadores, DataGridView tablaConstantes)
         {
             string cadena = rtb.Text + '\n';
@@ -272,13 +272,14 @@ namespace Escaner
                 AgregarRawATablaIdentificadores(identificador.Token, identificador.Codigo, string.Join(", ", identificador.Linea));
             }
         }
-
         private void AnalisisSintactico()
         {
             Stack<char> pila = new Stack<char>();
             pila.Push('$');
             pila.Push('P');
-            tablaLexica.Rows.Add(i++, 0, '$', 0, 199); // Agregar el símbolo de fin correctamente
+            try { tablaLexica.Rows.Add(i++, Convert.ToInt32(tablaLexica.Rows[tablaLexica.Rows.Count - 1].Cells[1].Value), '$', Convert.ToInt32(tablaLexica.Rows[tablaLexica.Rows.Count - 1].Cells[4].Value), 199); } // Agregar el símbolo de fin correctamente
+            catch { return; }
+
             int APUN = 0;
 
             string expresionActual = ""; // Acumulador para la expresión actual
@@ -294,25 +295,26 @@ namespace Escaner
                     if (X == K)
                     {
                         // Agregar el token actual al acumulador de la expresión
-                        expresionActual += tablaLexica.Rows[APUN].Cells[2].Value.ToString();
-                        APUN++;
-
-                        if (X == ';' || X == '$') // Si se encuentra un delimitador de expresión
+                        if (tablaLexica.Rows[APUN].Cells[2].Value.ToString() != "$")
                         {
-                            // Registrar la expresión acumulada en el DataGridView
-                            tablaExpresiones.Rows.Add(numeroExpresion++, expresionActual.Trim(), "Válida");
-                            expresionActual = ""; // Reiniciar acumulador
+                            expresionActual += tablaLexica.Rows[APUN].Cells[2].Value.ToString();
+                            APUN++;
+                            if (X == ';' || X == '$') // Si se encuentra un delimitador de expresión
+                            {
+                                // Registrar la expresión acumulada en el DataGridView
+                                tablaExpresiones.Rows.Add(numeroExpresion++, expresionActual, "Válida");
+                                expresionActual = ""; // Reiniciar acumulador
+                            }
                         }
-
                         if (APUN == tablaLexica.Rows.Count)
                         {
-                            MessageBox.Show("Análisis sintáctico completado con éxito.");
                             return;
                         }
                     }
                     else
                     {
-                        MessageBox.Show($"ERROR: Terminal no coincide. Esperado: {X}, encontrado: {K}");
+                        lblError.Text = error[99];
+                        MessageBox.Show($"ERROR: El terminal no coincide. Se esperaba: '{X}' y se encontró: '{K}'");
                         return;
                     }
                 }
@@ -332,13 +334,77 @@ namespace Escaner
                             }
                         }
                     }
+                    // Determinar el error sintáctico basado en X y K
                     else
                     {
-                        MessageBox.Show($"ERROR: No hay producción para {X}, {K}.");
+                        int linea = Convert.ToInt32(tablaLexica.Rows[APUN].Cells[1].Value);
+
+                        if (X == 'P' && K == ')') // Inicio con paréntesis de cierre
+                        {
+                            GenerarErrorConLinea(103, linea);
+                        }
+                        else if (X == 'F' && K == '$') // Falta punto y coma
+                        {
+                            GenerarErrorConLinea(108, linea);
+                        }
+                        else if (X == 'F') // Falta operando
+                        {
+                            GenerarErrorConLinea(104, linea);
+                        }
+                        else if (X == 'G' && K == '$') // Falta punto y coma
+                        {
+                            GenerarErrorConLinea(108, linea);
+                        }
+                        else if (X == 'G') // Falta operador
+                        {
+                            GenerarErrorConLinea(105, linea);
+                        }
+                        else if (X == 'P' && K != '(') // Faltan paréntesis de apertura
+                        {
+                            GenerarErrorConLinea(106, linea);
+                        }
+                        else if (X == ')') // Faltan paréntesis de cierre
+                        {
+                            GenerarErrorConLinea(107, linea);
+                        }
+                        else if (X == 'A' && K == ')') // Paréntesis de cierre inesperado
+                        {
+                            GenerarErrorConLinea(107, linea);
+                        }
+                        else if (X == 'A' && K == ';' || K == '$') // Falta paréntesis de cierre
+                        {
+                            GenerarErrorConLinea(107, linea);
+                        }
+                        else if (X == 'G' && K == '(') // Paréntesis de apertura inesperado
+                        {
+                            GenerarErrorConLinea(106, linea);
+                        }
+                        else if (X == 'O' && K != '$' && K != ';') // Fin de producción inválido
+                        {
+                            GenerarErrorConLinea(108, linea); // Falta punto y coma
+                        }
+                        else
+                        {
+                            lblError.Text = error[99];
+                            MessageBox.Show($"ERROR: El terminal en linea {linea} no coincide. Se esperaba: '{X}' y se encontró: '{K}'");
+                        }
                         return;
                     }
+
                 }
             }
+            }
+        // Método para obtener el mensaje de error por código
+        private string ObtenerMensajeError(int codigoError)
+        {
+            return error.ContainsKey(codigoError) ? error[codigoError] : "Error desconocido.";
+        }
+
+        // Método para generar un mensaje de error con contexto de línea
+        private void GenerarErrorConLinea(int codigoError, int linea)
+        {
+            string mensajeError = ObtenerMensajeError(codigoError);
+            lblError.Text = $"{mensajeError} en línea {linea}.";
         }
 
 
